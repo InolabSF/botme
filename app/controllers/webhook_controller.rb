@@ -118,6 +118,11 @@ class WebhookController < ApplicationController
 
 =end
   def post_facebook
+    puts '//////////////////////////////'
+    puts request.url
+    puts params
+    puts "\n\n"
+
     begin
       messaging = params['entry'][0]['messaging'][0]
       raise "messaging is needed" unless messaging
