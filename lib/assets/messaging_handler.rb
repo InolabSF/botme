@@ -48,9 +48,15 @@ class MessagingHandler
 
     # forward json if there is introduced bot
     if @sender.bot_id
-      @facebook_client.post_json(forward_json(json))
+      json = forward_json(json)
+      if json && json['facebook']
+        js = json['facebook']
+        js.each { |j| @facebook_client.post_json(j) }
+      end
+
     else
       @facebook_client.post_text(GREETING_TEXT)
+
     end
   end
 
