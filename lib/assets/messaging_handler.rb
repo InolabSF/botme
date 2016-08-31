@@ -35,13 +35,18 @@ class MessagingHandler
   #
   # @param [Hash] json hash
   def handle_json(json)
+    begin
+      messaging = json['entry'][0]['messaging'][0]
+    rescue => e
+    end
+
+    # stop bot
+    if check_if_stop_bot_by_messaging(messaging)
+      stop
+      return
+
     # find a bot to introduce
-    unless @sender.bot_id
-      begin
-        messaging = json['entry'][0]['messaging'][0]
-      rescue => e
-        return
-      end
+    elsif @sender.bot_id == nil
       bot_name = get_bot_name_by_messaging(messaging)
       call_bot_by_name(bot_name)
     end
@@ -60,6 +65,30 @@ class MessagingHandler
     end
   end
 
+
+  # handle messaging, and get if stop bot
+  #
+  # @param [Hash] messaging hash
+  # @return [Bool] if stop bot
+  def check_if_stop_bot_by_messaging(messaging)
+    # message
+    if messaging.include?('message')
+      message = messaging['message']
+      # text
+      if message.include?('text')
+        text = "#{message['text']}".downcase
+        return true if text == 'stop'
+      end
+
+    # postback
+    elsif messaging.include?('postback')
+      payload = messaging['postback']['payload']
+      return true if payload == STOP_POSTBACK
+    end
+
+    false
+  end
+
   # handle messaging, and get bot name you need
   #
   # @param [Hash] messaging hash
@@ -70,37 +99,19 @@ class MessagingHandler
     # message
     if messaging.include?('message')
       message = messaging['message']
-
       # text
       if message.include?('text')
         text = "#{message['text']}".downcase
 
-        # stop conversation
-        if text == 'stop'
-          stop
-
-        else
-          # wit.ai
-          message, contexts = @wit_client.run_actions(text)
-          bot_name = message.sub(CALL_POSTBACK, '') if message.start_with?(CALL_POSTBACK)
-        end
-
+        # wit.ai
+        message, contexts = @wit_client.run_actions(text)
+        bot_name = message.sub(CALL_POSTBACK, '') if message.start_with?(CALL_POSTBACK)
       end
 
     # postback
     elsif messaging.include?('postback')
       payload = messaging['postback']['payload']
-
-      case payload
-
-      # Stop
-      when STOP_POSTBACK
-        stop
-
-      else
-        bot_name = payload.sub(CALL_POSTBACK, '') if payload.start_with?(CALL_POSTBACK)
-      end
-
+      bot_name = payload.sub(CALL_POSTBACK, '') if payload.start_with?(CALL_POSTBACK)
     end
 
     bot_name
@@ -113,6 +124,7 @@ class MessagingHandler
   def call_bot_by_name(bot_name)
     bot = Bot.find_by_name(bot_name)
     return unless bot
+    return unless bot.uri
 
     @sender.bot_id = bot.id
     @sender.save if @sender.valid?
