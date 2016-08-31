@@ -205,7 +205,7 @@ class FacebookClient
   # @param [Hash] json json to send
   # @return [Hash] response
   def botme(uri, params, json)
-    connection = Faraday.new(:url => "#{uri}/botme") do |faraday|
+    connection = Faraday.new(:url => "#{uri}/botyou") do |faraday|
       faraday.request  :url_encoded
       faraday.response :logger
       faraday.adapter  Faraday.default_adapter
@@ -231,7 +231,7 @@ class FacebookClient
   # @param [Hash] json json to send
   # @return [Hash] response
   def botyou(uri, params, json)
-    connection = Faraday.new(:url => "#{uri}/botyou") do |faraday|
+    connection = Faraday.new(:url => "#{uri}/botme") do |faraday|
       faraday.request  :url_encoded
       faraday.response :logger
       faraday.adapter  Faraday.default_adapter

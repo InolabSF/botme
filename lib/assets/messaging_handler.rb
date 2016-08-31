@@ -42,7 +42,8 @@ class MessagingHandler
 
     # stop bot
     if check_if_stop_bot_by_messaging(messaging)
-      stop(json)
+      botme(json)
+      stop
       return
 
     # find a bot to introduce
@@ -130,9 +131,9 @@ class MessagingHandler
     @sender.save if @sender.valid?
   end
 
-  # foward json to another bot
+  # foward json to another bot and switch bot you
   #
-  # @param bot_name bot's name
+  # @param [Hash] json json to forward
   # @return [Hash] json to send to facebook server
   def botyou(json)
     bot = Bot.find_by_id(@sender.bot_id)
@@ -141,13 +142,19 @@ class MessagingHandler
     @facebook_client.botyou(bot.uri, {'verify_token' => bot.verify_token}, json) if bot.uri
   end
 
-  # stop
+  # foward json to another bot and switch bot me
   #
-  # @param [Hash] json to forward
-  def stop(json)
+  # @param [Hash] json json to forward
+  # @return [Hash] json to send to facebook server
+  def botme(json)
     bot = Bot.find_by_id(@sender.bot_id)
-    @facebook_client.botme(bot.uri, {'verify_token' => bot.verify_token}, json) if bot
+    return unless bot
 
+    @facebook_client.botme(bot.uri, {'verify_token' => bot.verify_token}, json) if bot.uri
+  end
+
+  # stop
+  def stop
     @sender.bot_id = nil
     @sender.save if @sender.valid?
 
