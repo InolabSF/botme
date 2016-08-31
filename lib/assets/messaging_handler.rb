@@ -126,7 +126,7 @@ class MessagingHandler
     bot = Bot.find_by_id(@sender.bot_id)
     return unless bot
 
-    @facebook_client.forward_json(bot.uri, {'verify_token' => bot.verify_token}, json)
+    @facebook_client.forward_json(bot.uri, {'verify_token' => bot.verify_token}, json) if bot.uri
   end
 
   # stop
