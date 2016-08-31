@@ -60,9 +60,6 @@ class MessagingHandler
         js.each { |j| @facebook_client.post_json(j) }
       end
 
-    else
-      @facebook_client.post_text(GREETING_TEXT)
-
     end
   end
 
