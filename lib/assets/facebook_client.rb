@@ -198,14 +198,14 @@ class FacebookClient
   end
 
 
-  # forward json to another bot server
+  # botme
   #
   # @param [String] uri uri to send
   # @param [Hash] params query to send
   # @param [Hash] json json to send
   # @return [Hash] response
-  def forward_json(uri, params, json)
-    connection = Faraday.new(:url => uri) do |faraday|
+  def botme(uri, params, json)
+    connection = Faraday.new(:url => "#{uri}/botme") do |faraday|
       faraday.request  :url_encoded
       faraday.response :logger
       faraday.adapter  Faraday.default_adapter
@@ -223,6 +223,33 @@ class FacebookClient
       {}
     end
   end
+
+  # botyou
+  #
+  # @param [String] uri uri to send
+  # @param [Hash] params query to send
+  # @param [Hash] json json to send
+  # @return [Hash] response
+  def botyou(uri, params, json)
+    connection = Faraday.new(:url => "#{uri}/botyou") do |faraday|
+      faraday.request  :url_encoded
+      faraday.response :logger
+      faraday.adapter  Faraday.default_adapter
+    end
+
+    response = connection.post do |request|
+      request.params = params
+      request.headers['Content-Type'] = 'application/json'
+      request.body = json.to_json
+    end
+
+    begin
+      JSON.parse(response.body)
+    rescue Exception => e
+      {}
+    end
+  end
+
 
   # post json to facebook messenger
   #
