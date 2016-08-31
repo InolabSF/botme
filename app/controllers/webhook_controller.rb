@@ -132,6 +132,7 @@ class WebhookController < ApplicationController
 
     rescue => e
       json = {"result" => "error", "message" => e.message}
+      puts '//////////////////////////////'
       puts json
       render :json => json, :status => 400
       return
@@ -142,6 +143,7 @@ class WebhookController < ApplicationController
     #messaging_handler.handle_on_facebook(messaging)
 
     json = {"result" => "success"}
+    puts '//////////////////////////////'
     puts json
     render json: json
   end
